@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const app = express();
 const usuarioRoutes = require('./routes/usuarioRoutes');
 const path = require('path');
@@ -7,6 +8,14 @@ const path = require('path');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST'],
+  allowHeaders: ['Content-Type', 'Authorization']
+}));
+
+
+
 // Servir archivos estáticos desde 'uploads'
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
@@ -14,7 +23,6 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/usuarios', usuarioRoutes);
 
 // Iniciar el servidor
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
+app.listen(3000, '0.0.0.0', () => {
+  console.log("servidor corriendo");
 });
