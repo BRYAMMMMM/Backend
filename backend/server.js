@@ -17,7 +17,7 @@ app.use(cors({
 
 
 // Servir archivos estáticos desde 'uploads'
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static('/mnt/images'));
 
 // Usar las rutas
 app.use('/api/usuarios', usuarioRoutes);

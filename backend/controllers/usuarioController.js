@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { Pool } = require('pg'); // Usaremos pg para interactuar con PostgreSQL
+const { sendNewUserNotification } = require('../emailService');
 
 // Configura la conexión con PostgreSQL
 const pool = new Pool({
@@ -10,6 +11,8 @@ const pool = new Pool({
   password: '5432', // Cambia si es necesario
   port: 5432,
 });
+
+const FILESTORE_BASE_PATH = '/mnt/images';
 
 exports.getUsuarios = async (req, res) => {
   try {
@@ -25,8 +28,14 @@ exports.getUsuarios = async (req, res) => {
 exports.createUsuario = async (req, res) => {
   try {
     const { nombre, apellido, direccion } = req.body;
-    const filePath = req.file ? req.file.path : null; // Ruta del archivo en 'uploads'
+    let filePath = null;
 
+    if (req.file){
+      filePath = path.join(FILESTORE_BASE_PATH, req.file.filename);
+
+      const tempPath = req.file.path;
+      fs.renameSync(tempPath, filePath);
+    }
     // Guardar datos en PostgreSQL
     const query = `
       INSERT INTO usuarios (nombre, apellido, direccion, file_path)
@@ -35,6 +44,9 @@ exports.createUsuario = async (req, res) => {
     `;
     const values = [nombre, apellido, direccion, filePath];
     const result = await pool.query(query, values);
+
+    const adminEmail = 'bryamperalta@hotmail.com';
+    sendNewUserNotification(nombre, apellido);
 
     res.status(201).json({
       message: 'Usuario creado con éxito',
